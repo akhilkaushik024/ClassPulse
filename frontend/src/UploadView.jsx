@@ -66,13 +66,11 @@ const UploadView = ({ userId, onUploadComplete, onNavigateDashboard }) => {
     } catch (error) {
       clearInterval(interval);
       console.error(error);
-      alert("Backend connection failed: Please ensure the Python API is running on localhost:8000.");
+      alert("Upload Failed: The cloud server dropped the connection. Try a much smaller file (under 10MB) for testing on this Free Tier!");
 
-      setProgress(100);
-      setTimeout(() => {
-        setUploading(false);
-        onUploadComplete(null);
-      }, 750);
+      setProgress(0);
+      setUploading(false);
+      setFile(null);
     }
   };
 
