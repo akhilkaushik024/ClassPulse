@@ -14,27 +14,29 @@ const AuthView = ({ onLogin }) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
-    
+
     try {
       if (!isLogin) {
         // Authentic API Signup Call
-        const res = await fetch("http://localhost:8000/auth/signup", {
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+        const res = await fetch(`${API_BASE}/auth/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ full_name: name, email, password })
         });
-        
+
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Signup failed securely");
-        
+
         setSignupSuccess(true);
         setIsLogin(true);
         setPassword('');
-        setTimeout(() => setSignupSuccess(false), 4000); 
-        
+        setTimeout(() => setSignupSuccess(false), 4000);
+
       } else {
         // Authentic API Login Call retaining History memory via SQLite
-        const res = await fetch("http://localhost:8000/auth/login", {
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+        const res = await fetch(`${API_BASE}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })

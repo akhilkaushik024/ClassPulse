@@ -8,12 +8,12 @@ const UploadView = ({ userId, onUploadComplete, onNavigateDashboard }) => {
   const [progress, setProgress] = useState(0);
 
   const onDrop = useCallback(acceptedFiles => {
-    if(acceptedFiles.length > 0) {
+    if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0]);
     }
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'video/*': ['.mp4', '.mov', '.avi'],
@@ -25,11 +25,11 @@ const UploadView = ({ userId, onUploadComplete, onNavigateDashboard }) => {
     setUploading(true);
     setProgress(0);
     let current = 0;
-    
+
     const interval = setInterval(() => {
       current += 1;
-      if(current <= 95) {
-         setProgress(current);
+      if (current <= 95) {
+        setProgress(current);
       }
     }, 450);
 
@@ -38,8 +38,9 @@ const UploadView = ({ userId, onUploadComplete, onNavigateDashboard }) => {
       const formData = new FormData();
       formData.append("user_id", userId.toString());
       formData.append("file", file);
-      
-      const response = await fetch("http://localhost:8000/api/upload", {
+
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      const response = await fetch(`${API_BASE}/api/upload`, {
         method: "POST",
         body: formData,
       });
@@ -55,22 +56,22 @@ const UploadView = ({ userId, onUploadComplete, onNavigateDashboard }) => {
       const realMetrics = data.metrics;
 
       setProgress(100);
-      
+
       setTimeout(() => {
-         setUploading(false);
-         // Render the correct historical graph arrays!
-         onUploadComplete(realMetrics); 
+        setUploading(false);
+        // Render the correct historical graph arrays!
+        onUploadComplete(realMetrics);
       }, 750);
 
     } catch (error) {
       clearInterval(interval);
       console.error(error);
       alert("Backend connection failed: Please ensure the Python API is running on localhost:8000.");
-      
+
       setProgress(100);
-      setTimeout(() => { 
-        setUploading(false); 
-        onUploadComplete(null); 
+      setTimeout(() => {
+        setUploading(false);
+        onUploadComplete(null);
       }, 750);
     }
   };
@@ -94,31 +95,31 @@ const UploadView = ({ userId, onUploadComplete, onNavigateDashboard }) => {
         </div>
       ) : (
         <div className="glass-card animate-slide-up" style={{ padding: '3rem', textAlign: 'center' }}>
-          
+
           {progress >= 100 && !uploading ? (
-             <div>
-                <FiCheckCircle className="text-success" size={60} style={{ margin: '0 auto 1.5rem auto' }} />
-                <h3>Analysis Complete!</h3>
-                <p className="text-secondary" style={{ marginTop: '0.5rem', marginBottom: '2rem' }}>Your detailed physics insights are mathematically generated and ready.</p>
-                <button className="btn-primary" onClick={onNavigateDashboard}>
-                  View Dashboard Analytics
-                </button>
-             </div>
+            <div>
+              <FiCheckCircle className="text-success" size={60} style={{ margin: '0 auto 1.5rem auto' }} />
+              <h3>Analysis Complete!</h3>
+              <p className="text-secondary" style={{ marginTop: '0.5rem', marginBottom: '2rem' }}>Your detailed physics insights are mathematically generated and ready.</p>
+              <button className="btn-primary" onClick={onNavigateDashboard}>
+                View Dashboard Analytics
+              </button>
+            </div>
           ) : (
             <div>
               <div className="glass-card" style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem', padding: '1rem 2rem', marginBottom: '2.5rem', borderRadius: '50px' }}>
                 <FiVideo className="text-brand-blue" size={24} />
                 <span style={{ fontWeight: 500 }}>{file.name}</span>
-                <span className="text-secondary" style={{ fontSize: '0.9rem' }}>({(file.size / (1024*1024)).toFixed(1)} MB)</span>
+                <span className="text-secondary" style={{ fontSize: '0.9rem' }}>({(file.size / (1024 * 1024)).toFixed(1)} MB)</span>
               </div>
-              
+
               {!uploading ? (
                 <div>
                   <button className="btn-primary" onClick={handleRealUpload} style={{ fontSize: '1.1rem', padding: '1rem 2.5rem' }}>
                     Process Recording Securely
                   </button>
                   <div style={{ marginTop: '1.5rem' }}>
-                    <button className="text-secondary" style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => {setFile(null); setProgress(0);}}>Choose Another File</button>
+                    <button className="text-secondary" style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => { setFile(null); setProgress(0); }}>Choose Another File</button>
                   </div>
                 </div>
               ) : (

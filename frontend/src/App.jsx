@@ -17,9 +17,25 @@ function App() {
   // State to track full historic data arrays
   const [historyData, setHistoryData] = useState([]);
 
+  // Check for saved session offline
+  useEffect(() => {
+    const saved = localStorage.getItem('classpulse_user');
+    if (saved) {
+       const userData = JSON.parse(saved);
+       setIsAuthenticated(true);
+       setUser(userData);
+       if (userData.has_history && userData.metrics) {
+           setHasData(true);
+           setMetrics(userData.metrics);
+       }
+       fetchHistory(userData.user_id);
+    }
+  }, []);
+
   const fetchHistory = async (userId) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/history/${userId}`);
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      const res = await fetch(`${API_BASE}/api/history/${userId}`);
       if (res.ok) {
         const data = await res.json();
         setHistoryData(data.history || []);
@@ -33,6 +49,7 @@ function App() {
     return <AuthView onLogin={(userData) => {
        setIsAuthenticated(true);
        setUser(userData);
+       localStorage.setItem('classpulse_user', JSON.stringify(userData));
        
        // Crucial feature: Retain user history upon logging back in!
        if (userData.has_history && userData.metrics) {
@@ -69,7 +86,7 @@ function App() {
           <div className="nav-item">
             <FiUser /> {user ? user.name : 'Professor'}
           </div>
-          <div className="nav-item" onClick={() => setIsAuthenticated(false)} style={{ color: 'var(--warning)', cursor: 'pointer' }}>
+          <div className="nav-item" onClick={() => { setIsAuthenticated(false); localStorage.removeItem('classpulse_user'); }} style={{ color: 'var(--warning)', cursor: 'pointer' }}>
             <FiLogOut /> Sign Out
           </div>
         </div>
